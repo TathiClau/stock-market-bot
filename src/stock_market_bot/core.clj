@@ -5,6 +5,7 @@
             [morse.handlers :as h]
             [morse.polling :as p]
             [morse.api :as t]
+            [stock-market-bot.logic.message :as logic]
             [clj-http.client :as http-client]
             [clojure.data.json :as json])
   (:gen-class))
@@ -17,7 +18,13 @@
               (h/command-fn "start"
                             (fn [{{id :id :as chat} :chat}]
                               (println "Bot joined new chat: " chat)
-                              (t/send-text token id "Do you want to know about common stocks or crypto?\n1 - common stocks\n2 - crypto")))
+                              (t/send-text token id "Which company are you looking for?")))
+
+              (h/message-fn
+                (fn [{{id :id} :chat :as message}]
+                  (println "Intercepted message: " message)
+                  (logic/company-list (:text message))
+                  ())))
 
               (h/message-fn
                 (fn [{{id :id} :chat :as message}]
