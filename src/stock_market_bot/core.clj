@@ -5,9 +5,7 @@
             [morse.handlers :as h]
             [morse.polling :as p]
             [morse.api :as t]
-            [stock-market-bot.logic.message :as logic]
-            [clj-http.client :as http-client]
-            [clojure.data.json :as json])
+            [stock-market-bot.logic.message :as logic])
   (:gen-class))
 
 
@@ -23,27 +21,30 @@
               (h/message-fn
                 (fn [{{id :id} :chat :as message}]
                   (println "Intercepted message: " message)
-                  (logic/company-list (:text message))
-                  ())))
+                  (->> (logic/filter-input (keyword (:text message)))
 
-              (h/message-fn
-                (fn [{{id :id} :chat :as message}]
-                  (println "Intercepted message: " message)
-                  (cond
-                    (= "1" (:text message)) (t/send-text token id "You chose common stocks")
-                    (= "2" message) (t/send-text token id "You chose common crypto")
-                    :else (t/send-text token id "Help me to help you and choose 1 or 2, please."))))
+                  (t/send-text token id "Which company are you looking for?")
+                  )
 
-              (h/command-fn "help"
-                            (fn [{{id :id :as chat} :chat}]
-                              (println "Help was requested in " chat)
-                              (t/send-text token id "Help is on the way")))
+                  )))
+
+              ;(h/message-fn
+              ;  (fn [{{id :id} :chat :as message}]
+              ;    (println "Intercepted message: " message)
+              ;    (cond
+              ;      (= "1" (:text message)) (t/send-text token id "You chose common stocks")
+              ;      (= "2" message) (t/send-text token id "You chose common crypto")
+              ;      :else (t/send-text token id "Help me to help you and choose 1 or 2, please."))))
+              ;
+              ;(h/command-fn "help"
+              ;              (fn [{{id :id :as chat} :chat}]
+              ;                (println "Help was requested in " chat)
+              ;                (t/send-text token id "Help is on the way")))
 
               ;(h/message-fn
               ;  (fn [{{id :id} :chat :as message}]
               ;    (println "Intercepted message: " message)
               ;    (t/send-text token id "I don't do a whole lot ... yet.")))
-              )
 
 (defn -main
   [& args]

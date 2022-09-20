@@ -5,6 +5,7 @@
   :url "http://example.com/FIXME"
 
   :main ^:skip-aot stock-market-bot.core
+  :target-path "target/%s"
 
   :profiles {:uberjar {:aot :all}}
 
@@ -16,5 +17,7 @@
                  [morse               "0.2.4"]
                  [clj-http "3.9.1"]
                  [org.clojure/data.json "2.4.0"]]
+
+  :plugins [[lein-environ "1.1.0"]]
 
   :repl-options {:init-ns stock-market-bot.core})
