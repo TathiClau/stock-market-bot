@@ -12,11 +12,3 @@
              [x]
              (= (key x) user-str-input))
            company-list))
-
-;(println (filter-input apple))
-
-
-(->> (filter-input :apple)
-    first
-    val
-    (println "esse é o valor "))

@@ -5,46 +5,39 @@
             [morse.handlers :as h]
             [morse.polling :as p]
             [morse.api :as t]
-            [stock-market-bot.logic.message :as logic])
+            [stock-market-bot.logic.message :as logic]
+            [yahoo-finance-api.core :as f])
   (:gen-class))
 
-
+(def portifolio (atom #{}))
 (def token (env :telegram-token))
+
+
 
 (h/defhandler handler
 
               (h/command-fn "start"
                             (fn [{{id :id :as chat} :chat}]
                               (println "Bot joined new chat: " chat)
-                              (t/send-text token id "Which company are you looking for?")))
+                              (t/send-text token id "Hello, I am a bot to report stock data for you! Please give me a stocks ticker. Example: AMZN")))
 
               (h/message-fn
                 (fn [{{id :id} :chat :as message}]
                   (println "Intercepted message: " message)
-                  (->> (logic/filter-input (keyword (:text message)))
+                  (let [stock-info (f/get-stock message)]
+                    stock-info)))
 
-                  (t/send-text token id "Which company are you looking for?")
-                  )
+              (h/message-fn
+                (fn [{{id :id} :chat :as message}]
+                  (println "Intercepted message: " message)
+                  (let [company-code (->> (logic/filter-input (keyword (:text message)))
+                                          first
+                                          val
+                                          println
+                                          (t/send-text token id (fn [x] (str ))))]
+                    company-code)))
 
-                  )))
-
-              ;(h/message-fn
-              ;  (fn [{{id :id} :chat :as message}]
-              ;    (println "Intercepted message: " message)
-              ;    (cond
-              ;      (= "1" (:text message)) (t/send-text token id "You chose common stocks")
-              ;      (= "2" message) (t/send-text token id "You chose common crypto")
-              ;      :else (t/send-text token id "Help me to help you and choose 1 or 2, please."))))
-              ;
-              ;(h/command-fn "help"
-              ;              (fn [{{id :id :as chat} :chat}]
-              ;                (println "Help was requested in " chat)
-              ;                (t/send-text token id "Help is on the way")))
-
-              ;(h/message-fn
-              ;  (fn [{{id :id} :chat :as message}]
-              ;    (println "Intercepted message: " message)
-              ;    (t/send-text token id "I don't do a whole lot ... yet.")))
+              )
 
 (defn -main
   [& args]
