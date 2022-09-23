@@ -6,6 +6,7 @@
             [morse.polling :as p]
             [morse.api :as t]
             [stock-market-bot.logic.message :as logic]
+            [stock-market-bot.service :as service]
             [yahoo-finance-api.core :as f])
   (:gen-class))
 
@@ -19,13 +20,12 @@
               (h/command-fn "start"
                             (fn [{{id :id :as chat} :chat}]
                               (println "Bot joined new chat: " chat)
-                              (t/send-text token id "Hello, I am a bot to report stock data for you! Please give me a stocks ticker. Example: AMZN")))
+                              (t/send-text token id "Hello, I am a bot to report stock data for you! Please give me a stock code. Example: AMZN")))
 
               (h/message-fn
                 (fn [{{id :id} :chat :as message}]
                   (println "Intercepted message: " message)
-                  (let [stock-info (f/get-stock message)]
-                    stock-info)))
+                  (t/send-text token id (service/common-stokes-url-call (str message)))))
 
               (h/message-fn
                 (fn [{{id :id} :chat :as message}]

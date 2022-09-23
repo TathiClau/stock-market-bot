@@ -13,7 +13,7 @@
             :url "https://www.eclipse.org/legal/epl-2.0/"}
 
   :dependencies [[org.clojure/clojure "1.10.0"]
-                 [yahoo-finance-api "0.1.5"]
+                 [yahoo-finance-api "0.1.6"]
                  [environ             "1.1.0"]
                  [morse               "0.2.4"]
                  [org.clojure/core.async "0.4.500"]
