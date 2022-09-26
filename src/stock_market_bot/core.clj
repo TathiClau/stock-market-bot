@@ -36,7 +36,6 @@
                                           println
                                           (t/send-text token id (fn [x] (str ))))]
                     company-code)))
-
               )
 
 (defn -main
