@@ -22,17 +22,17 @@
 (defn format-response
   [my-seq]
   (str "Name: " (get my-seq :longName)
-       ;"\nCurrency: " (get (nth my-seq 2) 1)
-       ;"\nCurrent Price: " (get (nth my-seq 5) 1)
-       ;"\nBid: " (get (nth my-seq 4) 1)
-       ;"\nBid: " (get (nth my-seq 5) 1)
-       ;"\nBid Size: " (get (nth my-seq 6) 1)
-       ;"\nDay Size: " (get (nth my-seq 7) 1)
-       ;"\nDay Low: " (get (nth my-seq 8) 1)
+       "\nCurrency: " (get my-seq :currency)
+       "\nCurrent Price: " (get my-seq :currentPrice)
+       "\nBid: " (get my-seq :bid)
+       "\nBid Size: " (get my-seq :bidSize)
+       "\nDay High: " (get my-seq :dayHigh)
+       "\nDay Low: " (get my-seq :dayLow)
        ))
 
 (defn common-stokes-url-call
   [code]
+  (println code)
   (let [raw-response (:body (call-yahoo-finance code))
         response (->> raw-response
                       json/read-json
@@ -41,19 +41,4 @@
         items-map (format-response items)]
         items-map))
 
-(println (common-stokes-url-call "AMZN"))
-;(def oi
-;  #{[:bidSize 1000] [:dayHigh 116.05] [:dayLow 112.06] [:currentPrice 113.78] [:currency "USD"] [:longName " Amazon.com, Inc."] [:bid 0]})
-;
-;(println (select-keys oi [:dayLow]))
-;(println (sort (comp #{:longName
-;                       :currency
-;                       :currentPrice
-;                       :bid
-;                       :bidSize
-;                       :dayHigh
-;                       :dayLow} oi) oi))
 
-
-;(println (str "Name: " (:a oi)
-;              "\nCurrency: "))
