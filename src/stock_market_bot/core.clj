@@ -5,38 +5,69 @@
             [morse.handlers :as h]
             [morse.polling :as p]
             [morse.api :as t]
-            [clj-http.client :as http-client]
-            [clojure.data.json :as json])
+            [stock-market-bot.logic.cmd-logic :as logic]
+            [stock-market-bot.service :as service])
   (:gen-class))
 
 
 (def token (env :telegram-token))
 
-(h/defhandler handler
+;(h/defhandler handler
+;
+;              (h/command-fn "start"
+;                            (fn [{{id :id :as chat} :chat}]
+;                              (println "Bot joined new chat: " chat)
+;                              (t/send-text token id "Hello, I am a bot to report stock data for you! Please give me a stock code. Example: AMZN")))
+;
+;              (h/command-fn "wallet"
+;                            (fn [{{id :id :as chat} :chat}]
+;                              (println "Bot joined new chat: " chat)
+;                              (t/send-text token id "Add a stocks to your wallet")
+;                              (h/message-fn
+;                                (fn [{{id :id} :chat :as message}]
+;                                  (println "Intercepted message: " message)
+;                                  (t/send-text token id (service/common-stokes-url-call (:text message)))
+;                                  )))
+;                            )
+;
+;              (h/message-fn
+;                (fn [{{id :id} :chat :as message}]
+;                  (println "Intercepted message: " message)
+;                  (t/send-text token id (service/common-stokes-url-call (:text message)))
+;                  ))
+;
+;              (h/message-fn
+;                (fn [{{id :id} :chat :as message}]
+;                  (println "Intercepted message: " message)
+;                  (t/send-text token id (add-stock-wallet (:text message)))
+;                  ))
+;              )
 
-              (h/command-fn "start"
-                            (fn [{{id :id :as chat} :chat}]
-                              (println "Bot joined new chat: " chat)
-                              (t/send-text token id "Do you want to know about common stocks or crypto?\n1 - common stocks\n2 - crypto")))
+(defn send-tx! [id & body]
+  (t/send-text token id (apply str body)))
 
-              (h/message-fn
-                (fn [{{id :id} :chat :as message}]
-                  (println "Intercepted message: " message)
-                  (cond
-                    (= "1" (:text message)) (t/send-text token id "You chose common stocks")
-                    (= "2" message) (t/send-text token id "You chose common crypto")
-                    :else (t/send-text token id "Help me to help you and choose 1 or 2, please."))))
+(defn send-md! [id & body]
+  (t/send-text token id {:parse_mode "Markdown"} (apply str body)))
 
-              (h/command-fn "help"
-                            (fn [{{id :id :as chat} :chat}]
-                              (println "Help was requested in " chat)
-                              (t/send-text token id "Help is on the way")))
+(defn cmd-start [{{:keys [id]} :chat}]
+  (send-tx! id "Hi, welcome to Stock Market Bot! This bot basically work as an assistant for you to keep an eye on the stock market and your wallet.
+  \nType /help for options."))
 
-              ;(h/message-fn
-              ;  (fn [{{id :id} :chat :as message}]
-              ;    (println "Intercepted message: " message)
-              ;    (t/send-text token id "I don't do a whole lot ... yet.")))
-              )
+(defn cmd! [command!
+            {{:keys [id]}  :chat
+             {user-id :id} :from
+             text          :text}]
+  (command!
+    text
+    (partial send-tx! id)
+    (partial send-md! id)
+    (str "tg:" user-id)))
+
+(h/defhandler handler-telegram
+              (h/command-fn "start"    cmd-start)
+              (h/command-fn "help"     (partial cmd! (partial logic/cmd-help "/")))
+              (h/command-fn "stock"    (partial cmd! logic/cmd-stock!))
+              (h/command-fn "wallet-add"   (partial cmd! logic/cmd-wallet-add!)))
 
 (defn -main
   [& args]
@@ -45,4 +76,4 @@
     (System/exit 1))
 
   (println "Starting the nu-tik-talk-bot")
-  (<!! (p/start token handler)))
+  (<!! (p/start token handler-telegram)))
