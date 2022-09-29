@@ -5,18 +5,12 @@
             [morse.handlers :as h]
             [morse.polling :as p]
             [morse.api :as t]
-            [clojure.pprint :as pp]
             [stock-market-bot.logic.cmd-logic :as logic]
-            [stock-market-bot.service :as service]
-            [yahoo-finance-api.core :as f])
+            [stock-market-bot.service :as service])
   (:gen-class))
 
-(def wallet (atom #{}))
-(def token (env :telegram-token))
 
-(defn add-stock-wallet
-  [stock]
-  (swap! wallet assoc stock))
+(def token (env :telegram-token))
 
 ;(h/defhandler handler
 ;
@@ -71,7 +65,9 @@
 
 (h/defhandler handler-telegram
               (h/command-fn "start"    cmd-start)
-              (h/command-fn "help"     (partial cmd! (partial logic/cmd-help "/"))))
+              (h/command-fn "help"     (partial cmd! (partial logic/cmd-help "/")))
+              (h/command-fn "stock"    (partial cmd! logic/cmd-stock!))
+              (h/command-fn "wallet-add"   (partial cmd! logic/cmd-wallet-add!)))
 
 (defn -main
   [& args]
