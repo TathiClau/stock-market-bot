@@ -5,7 +5,7 @@
 
 (defn call-yahoo-finance
   [code]
-  (client/post "https://yahoo-finance97.p.rapidapi.com/stock-info" {:headers     {:X-RapidAPI-Key  ""
+  (client/post "https://yahoo-finance97.p.rapidapi.com/stock-info" {:headers     {:X-RapidAPI-Key  "e9699c6a20mshbe24f39168d7058p1f0afejsne7e0887311d5"
                                                                                   :X-RapidAPI-Host "yahoo-finance97.p.rapidapi.com"}
                                                                     :form-params {:symbol code}}))
 
@@ -19,6 +19,12 @@
                    :dayHigh
                    :dayLow} key) coll)))
 
+(defn filter-items-price
+  [coll]
+  (into (sorted-map) (filter (comp #{:currentPrice
+                                     :currency
+                                     :symbol} key) coll)))
+
 (defn format-response
   [my-seq]
   (str "Name: " (get my-seq :longName)
@@ -30,9 +36,12 @@
        "\nDay Low: " (get my-seq :dayLow)
        ))
 
+(defn format-response-price
+  [my-seq]
+  (str (get my-seq :symbol) " " (get my-seq :currency) " " (get my-seq :currentPrice)))
+
 (defn common-stokes-url-call
   [code]
-  (println code)
   (let [raw-response (:body (call-yahoo-finance code))
         response (->> raw-response
                       json/read-json
@@ -40,5 +49,16 @@
         items (filter-items response)
         items-map (format-response items)]
         items-map))
+
+(defn common-stokes-url-call-price
+  [code]
+  (let [raw-response (:body (call-yahoo-finance code))
+        response (->> raw-response
+                      json/read-json
+                      :data)
+        items (filter-items-price response)
+        items-map (format-response-price items)]
+    items-map))
+
 
 

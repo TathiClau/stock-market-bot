@@ -67,7 +67,8 @@
               (h/command-fn "start"    cmd-start)
               (h/command-fn "help"     (partial cmd! (partial logic/cmd-help "/")))
               (h/command-fn "stock"    (partial cmd! logic/cmd-stock!))
-              (h/command-fn "wallet-add"   (partial cmd! logic/cmd-wallet-add!)))
+              (h/command-fn "walletAdd"   (partial cmd! logic/cmd-wallet-add!))
+              (h/command-fn "wallet"   (partial cmd! logic/cmd-wallet!)))
 
 (defn -main
   [& args]
